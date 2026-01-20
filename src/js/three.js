@@ -38,6 +38,8 @@ function initThreeJS() {
     function animate() {
         cube.rotation.x += 0.01;
         cube.rotation.y += 0.01;
+        cube.material.color.set(PARAMS.cubeColor);
+        cube.material.wireframe = PARAMS.wireframe;
 
         renderer.render( scene, camera );
 

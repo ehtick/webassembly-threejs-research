@@ -11,7 +11,11 @@ const PARAMS = {
     
     // GPU Memory
     geometries: 0,
-    textures: 0
+    textures: 0,
+    
+    // Geometry
+    cubeColor: 0x00ff00,
+    wireframe: false
 }
 
 function initGUI() {
@@ -28,6 +32,10 @@ function initGUI() {
     const GPU_MEMORY_FOLDER = gui.addFolder( 'GPU Memory' );
     GPU_MEMORY_FOLDER.add( PARAMS, 'geometries' ).listen();
     GPU_MEMORY_FOLDER.add( PARAMS, 'textures' ).listen();
+    
+    const GEOMETRY_FOLDER = gui.addFolder( 'Geometry' );
+    GEOMETRY_FOLDER.addColor( PARAMS, 'cubeColor' ).name( 'Cube color' );
+    GEOMETRY_FOLDER.add( PARAMS, 'wireframe' );
 }
 
 export { PARAMS, initGUI }
