@@ -23,7 +23,7 @@ function initThreeJS() {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(FOV, ASPECT, NEAR, FAR);
-    camera.position.z = 10;
+    camera.position.z = 60;
 
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize( WIDTH, HEIGHT, true);
@@ -34,6 +34,37 @@ function initThreeJS() {
     const material = new THREE.MeshBasicMaterial( { color: BOX_COLOR } );
     const cube = new THREE.Mesh( boxGeometry, material );
     scene.add( cube );
+    
+    // Particles
+    const PARTICLE_COUNT = 100;
+    const COMPONENTS_PER_PARTICLE = 3; // x, y, z
+
+    const ARRAY_LENGTH = PARTICLE_COUNT * COMPONENTS_PER_PARTICLE;
+
+    const POINT_SIZE = 0.5;
+    const POINT_COLOR = 0x00ff00;
+    
+    const POSITION_ARRAY = new Float32Array(ARRAY_LENGTH);
+    const VELOCITY_ARRAY = new Float32Array(ARRAY_LENGTH);
+
+    const POS_SCALE = 50;
+    const VEL_SCALE = 2;
+    // Set a random number in each posistion and velocity
+    for (let i = 0; i < ARRAY_LENGTH; i++) {
+        // Range: -0.5, +0.5
+        const POS_RANGE = (Math.random() - 0.5); 
+        const VEL_RANGE = (Math.random() - 0.5);
+            
+        POSITION_ARRAY[i] = POS_RANGE * POS_SCALE;
+        VELOCITY_ARRAY[i] = VEL_RANGE * VEL_SCALE;
+    }
+    
+    const GEOMETRY = new THREE.BufferGeometry();
+    GEOMETRY.setAttribute('position', new THREE.BufferAttribute(POSITION_ARRAY, 3));
+
+    const MATERIAL = new THREE.PointsMaterial({ size: POINT_SIZE, color: POINT_COLOR  });
+    const POINTS = new THREE.Points(GEOMETRY, MATERIAL);
+    scene.add(POINTS);
 
     function animate() {
         cube.rotation.x += 0.01;
