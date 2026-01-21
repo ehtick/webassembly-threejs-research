@@ -14,8 +14,8 @@ class Particles {
         this.positionArray = new Float32Array(this.arrayLength);
         this.velocityArray = new Float32Array(this.arrayLength);
         this.boxBounds = this.positionBounds / 2;
-
-        this.geometry = new THREE.BufferGeometry();
+        
+        this.init();
     }
       
     init() {
@@ -29,12 +29,11 @@ class Particles {
             this.velocityArray[i] = VEL_RANGE * this.velocitySpeed;
         }
 
+        this.geometry = new THREE.BufferGeometry();
         this.geometry.setAttribute('position', new THREE.BufferAttribute(this.positionArray, 3));
 
         const MATERIAL = new THREE.PointsMaterial({ size: this.pointSize, color: this.pointColor });
-        const POINTS = new THREE.Points(this.geometry, MATERIAL);
-
-        return POINTS;
+        this.mesh = new THREE.Points(this.geometry, MATERIAL);
     }
 
     update(deltaTime = 1/60) {

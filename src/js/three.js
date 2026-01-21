@@ -37,7 +37,7 @@ function initThreeJS() {
     scene.add( cube );
     
     const particles = new Particles();
-    scene.add( particles.init() );
+    scene.add( particles.mesh );
 
     function animate() {
         cube.rotation.x += 0.01;
