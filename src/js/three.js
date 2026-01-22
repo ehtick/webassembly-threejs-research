@@ -24,7 +24,8 @@ function initThreeJS() {
     renderer.setAnimationLoop ( animate );
     document.body.appendChild( renderer.domElement );
 
-    let cameraController = new CameraController({ aspect: WIDTH/HEIGHT});
+    let cameraController = new CameraController({ renderer, aspect: WIDTH/HEIGHT});
+    cameraController.bindEvents();
     cameraController.camera.position.z = 60;
 
     const boxGeometry = new THREE.BoxGeometry( BOX_SIZE.x, BOX_SIZE.y, BOX_SIZE.z );
@@ -35,13 +36,18 @@ function initThreeJS() {
     const particles = new Particles();
     scene.add( particles.mesh );
 
+    const clock = new THREE.Clock();
+
     function animate() {
         cube.rotation.x += 0.01;
         cube.rotation.y += 0.01;
         cube.material.color.set(PARAMS.cubeColor);
         cube.material.wireframe = PARAMS.wireframe;
 
+let deltaTime = clock.getDelta();
+
         particles.update();
+        cameraController.update(deltaTime);
 
         renderer.render( scene, cameraController.camera );
 
