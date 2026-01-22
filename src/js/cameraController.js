@@ -16,6 +16,14 @@ class CameraController {
             up: false,
             down: false
         }
+        this.keyMap = {
+            KeyW: 'forward',
+            KeyS: 'backward',
+            KeyD: 'right',
+            KeyA: 'left',
+            Space: 'up',
+            KeyC: 'down'
+        }
 
         this.camera = new THREE.PerspectiveCamera(this.fov, this.aspect, this.near, this.far);
 
@@ -27,7 +35,7 @@ class CameraController {
     }
 
     bindEvents() {
-        const { controls, move } = this;
+        const { controls, move, keyMap } = this;
         
         // Click to lock pointer and start moving
         document.addEventListener('click', () => {
@@ -39,48 +47,18 @@ class CameraController {
         });
         
         document.addEventListener('keydown', (event) => {
-            switch (event.code) {
-                case 'KeyW':
-                    move.forward = true;
-                    break;
-                case 'KeyS':
-                    move.backward = true;
-                    break;
-                case 'KeyD':
-                    move.right = true;
-                    break;
-                case 'KeyA':
-                    move.left = true;
-                    break;
-                case 'Space':
-                    move.up = true;
-                    break;
-                case 'KeyC':
-                    move.down = true;
-                    break;
+            let direction = keyMap[event.code];
+            
+            if (direction) {
+                move[direction] = true;
             }
         });
 
         document.addEventListener('keyup', (event) => {
-            switch (event.code) {
-                case 'KeyW':
-                    move.forward = false;
-                    break;
-                case 'KeyS':
-                    move.backward = false;
-                    break;
-                case 'KeyD':
-                    move.right = false;
-                    break;
-                case 'KeyA':
-                    move.left = false;
-                    break;
-                case 'Space':
-                    move.up = false;
-                    break;
-                case 'KeyC':
-                    move.down = false;
-                    break;
+            let direction = keyMap[event.code];
+
+            if (direction) {
+                move[direction] = false;
             }
         });
     }
