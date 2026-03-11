@@ -2,12 +2,9 @@ import * as THREE from 'three';
 import { PARAMS } from './gui';
 import { Particles } from './particles';
 import { CameraController } from './cameraController';
+import { FPSCounter } from './fpsCounter';
 
-let lastTime = performance.now();
-let frames = 0;
-let fps = 0;
-const RESPONSIVE_FPS = 1000;
-
+let fpsCounter = new FPSCounter();
 let scene;
 let particles; 
 
@@ -51,16 +48,7 @@ function initThreeJS() {
 
         renderer.render( scene, cameraController.camera );
 
-        // FPS calculation
-        frames++;
-        const now = performance.now();
-        if (now - lastTime >= RESPONSIVE_FPS) {
-            fps = Math.round((frames * 1000) / (now - lastTime));
-            frames = 0;
-            lastTime = now;
-        }
-
-        PARAMS.fps = fps;
+        PARAMS.fps = fpsCounter.update();
         PARAMS.calls = renderer.info.render.calls;
         PARAMS.triangles = renderer.info.render.triangles;
         PARAMS.geometries = renderer.info.memory.geometries;
