@@ -5,10 +5,8 @@ import { createGeometry } from './three';
 class DebugGUI {
     constructor() {
         this.gui = new GUI(document.body);
-        this.loadButton;
-        this.deleteButton;
 
-        this.PARAMS = {
+        this.object = {
             performance: {
                 display: {
                     fps: 0,
@@ -44,8 +42,17 @@ class DebugGUI {
                         this.loadButton.enable();
                         this.deleteButton.enable();
                     },
-                    loadPreset: () => {
-                        this.gui.load(loadFromLocalStorage( 'preset' ));
+                    loadPreset: () => {                    
+                        let preset = loadFromLocalStorage( 'preset' )
+
+                        if (preset != null) {
+                            this.loadButton.enable();
+                            this.deleteButton.enable();
+                            this.gui.load(preset);
+                        } else {
+                            this.loadButton.disable();
+                            this.deleteButton.disable();
+                        } 
                     },
                     deleteAllPresets: () => {
                         if (confirm( 'Do you want to delete all presets?' )) {
@@ -60,17 +67,15 @@ class DebugGUI {
     }
 
     init() {
+        const { object } = this;
         let { gui } = this;
-        const { PARAMS } = this;
-        
-        let method;
-        let params;
+        let method, params;
 
-        for (let propertyName in PARAMS) {            
+        for (let propertyName in object) {            
             const folder = gui.addFolder( propertyName );
 
-            for (let type in PARAMS[propertyName]) {
-                for (let key in PARAMS[propertyName][type]) {
+            for (let type in object[propertyName]) {
+                for (let key in object[propertyName][type]) {
                     const capitalize = key.charAt(0).toLocaleUpperCase() + key.substring(1);
 
                     if (key == "color") {
@@ -80,16 +85,18 @@ class DebugGUI {
                     }
 
                     if (key == "type") {
-                        params = [PARAMS[propertyName][type], key, ['points', 'cubes']];
+                        params = [object[propertyName][type], key, ['points', 'cubes']];
                     } else {
-                        params = [PARAMS[propertyName][type], key];
+                        params = [object[propertyName][type], key];
                     }
                     
                     let control = folder[method](...params).name(capitalize);
                     
-                    if (type == "input") {
+                    if (type == "display") {
+                        control.listen();
+                    } else if (type == "input") {
                         control.onChange(() => {
-                            createGeometry(PARAMS[propertyName][type]);
+                            createGeometry(object[propertyName][type]);
                         });
                     }
                     
@@ -101,17 +108,8 @@ class DebugGUI {
                 }
             }
         }
-
-        let preset = loadFromLocalStorage( 'preset' )
-
-        if (preset != null) {
-            this.loadButton.enable();
-            this.deleteButton.enable();
-            gui.load(preset);
-        } else {
-            this.loadButton.disable();
-            this.deleteButton.disable();
-        }
+        // If there are preset values, then load them into the GUI; otherwise, do not load any values
+        object.presets.button.loadPreset();
     }
 }
 
