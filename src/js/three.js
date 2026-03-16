@@ -1,63 +1,73 @@
 import * as THREE from 'three';
-import { PARAMS } from './gui';
-import { Particles } from './particles';
 import { CameraController } from './cameraController';
-import { FPSCounter } from './fpsCounter';
 
-let fpsCounter = new FPSCounter();
-let scene;
-let particles; 
+class ThreeJS {
+    constructor({ debugGUI, fpsCounter } = {} ) {
+        this.scene = new THREE.Scene();
+        this.clock = new THREE.Clock();
 
-function createGeometry(params = {}) {
-    const {type, count, size, color, posBounds, speed} = params;
+        this.debugGUI = debugGUI;
+        this.fpsCounter = fpsCounter;
+    }
     
-    scene = new THREE.Scene();
+    createRenderer({ container, width = 1920, height = 1080 } = {}) {
+        this.renderer = new THREE.WebGLRenderer();
+        this.renderer.setSize(width, height, true);
+        container.appendChild(this.renderer.domElement);
+    }
     
-    if (particles) {
-        scene.remove(particles.mesh);
-        particles.disposeGeometry?.();
-    } 
-    particles = new Particles({ type, count, size, color, posBounds, speed });
-    scene.add( particles.mesh );
-}
+    createCamera({ fov = 75, aspect = 1920/1080, near = 0.1, far = 1000, enableControls = false } = {}) {
+        this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+        this.camera.position.z = 60;
 
-function initThreeJS() {
-    // Set the scene size
-    const WIDTH = window.innerWidth;
-    const HEIGHT = window.innerHeight;
+        if (enableControls) {
+            this.cameraController = new CameraController({camera: this.camera, renderer: this.renderer});    
+            this.cameraController.bindEvents();
+        }
+    }
 
-    scene = new THREE.Scene();
+    createGeometry(geometry) {
+        if (this.geometry) {
+            this.scene.remove(this.geometry.mesh);
+            this.geometry.disposeGeometry?.();
+        }
 
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize( WIDTH, HEIGHT, true);
-    renderer.setAnimationLoop ( animate );
-    document.body.appendChild( renderer.domElement );
+        this.geometry = geometry;
+        this.scene.add(this.geometry.mesh);
+    }
 
-    let cameraController = new CameraController({ renderer, aspect: WIDTH/HEIGHT});
-    cameraController.bindEvents();
-    cameraController.camera.position.z = 60;
-    
-    createGeometry(PARAMS);
+    update() {
+        this.renderer.setAnimationLoop (this.animate);
+    }
 
-    const clock = new THREE.Clock();
-    function animate() {
-        let deltaTime = clock.getDelta();
+    animate = () => {
+        const deltaTime = this.clock.getDelta();
+        
+        if (this.geometry) {
+        }
+        this.geometry.update(deltaTime);
 
-        particles.update(deltaTime);
-        cameraController.update(deltaTime);
+        if (this.cameraController) {
+            this.cameraController.update(deltaTime);
+        }
 
-        renderer.render( scene, cameraController.camera );
-
-        PARAMS.fps = fpsCounter.update();
-        PARAMS.calls = renderer.info.render.calls;
-        PARAMS.triangles = renderer.info.render.triangles;
-        PARAMS.geometries = renderer.info.memory.geometries;
-        PARAMS.textures = renderer.info.memory.textures;
+        if (this.scene && this.camera) {
+            this.renderer.render(this.scene, this.camera);
+        }
+        
+        const display = this.debugGUI.object.performance.display;
+        const rendererInfo = this.renderer.info.render;
+        
+        display.fps = this.fpsCounter.update();
+        display.calls = rendererInfo.calls;
+        display.triangles = rendererInfo.triangles;
+        display.geometries = rendererInfo.geometries;
+        display.textures = rendererInfo.textures;
         
         if (performance.memory) {
-            PARAMS.JsHeapMB = performance.memory.usedJSHeapSize / 1048576;
+            display.JsHeapMB = performance.memory.usedJSHeapSize / 1048576;
         }
     }
 }
 
-export { initThreeJS, createGeometry }
+export { ThreeJS }
