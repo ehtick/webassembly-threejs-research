@@ -9,11 +9,32 @@ class ThreeJS {
         this.debugGUI = debugGUI;
         this.fpsCounter = fpsCounter;
     }
+
+    createRenderer({ container, width = window.innerWidth, height = window.innerHeight } = {}) {
+        if (!container) {
+            throw new Error("Container DOM element is required");
+        } else {
+            if(!this.renderer) {
+                this.renderer = new THREE.WebGLRenderer();
+                container.appendChild(this.renderer.domElement);
+            } else {
+                throw new Error('Renderer already exists!');
+            }
+
+            this.updateRenderer({ width, height });
+        }
+    }
     
-    createRenderer({ container, width = 1920, height = 1080 } = {}) {
-        this.renderer = new THREE.WebGLRenderer();
-        this.renderer.setSize(width, height, true);
-        container.appendChild(this.renderer.domElement);
+    updateRenderer({ width, height } = {}) {
+        if(!this.renderer) {
+            throw new Error('Renderer does not exists!');
+        } else {
+            if (width !== undefined && height !== undefined){
+                this.renderer.setSize(width, height, true);
+            } else {
+                throw new Error('Width or Height are undefined');
+            }
+        }
     }
     
     createCamera({ fov = 75, aspect = 1920/1080, near = 0.1, far = 1000, enableControls = false } = {}) {
