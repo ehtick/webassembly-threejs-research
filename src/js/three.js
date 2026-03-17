@@ -141,8 +141,8 @@ class ThreeJS {
         const deltaTime = this.clock.getDelta();
         
         if (this.geometry) {
+            this.geometry.update(deltaTime);
         }
-        this.geometry.update(deltaTime);
 
         if (this.cameraController) {
             this.cameraController.update(deltaTime);
@@ -151,18 +151,22 @@ class ThreeJS {
         if (this.scene && this.camera) {
             this.renderer.render(this.scene, this.camera);
         }
+
+        if (this.debugGUI) {
+            const display = this.debugGUI.object.performance.display;
+            const rendererInfo = this.renderer.info.render;
+            
+            if(this.fpsCounter) {
+                display.fps = this.fpsCounter.update();
+            }
+            display.calls = rendererInfo.calls;
+            display.triangles = rendererInfo.triangles;
+            display.geometries = rendererInfo.geometries;
+            display.textures = rendererInfo.textures;
         
-        const display = this.debugGUI.object.performance.display;
-        const rendererInfo = this.renderer.info.render;
-        
-        display.fps = this.fpsCounter.update();
-        display.calls = rendererInfo.calls;
-        display.triangles = rendererInfo.triangles;
-        display.geometries = rendererInfo.geometries;
-        display.textures = rendererInfo.textures;
-        
-        if (performance.memory) {
-            display.JsHeapMB = performance.memory.usedJSHeapSize / 1048576;
+            if (performance.memory) {
+                display.JsHeapMB = performance.memory.usedJSHeapSize / 1048576;
+            }
         }
     }
 }
