@@ -20,7 +20,7 @@ class ThreeJS {
 
                 this.updateRenderer({ width, height });
             } else {
-                throw new Error('Renderer already exists.');
+                throw new Error('Renderer already exists!');
             }
         }
     }
@@ -54,40 +54,51 @@ class ThreeJS {
         }
     }
 
-    updateCamera({ fov, aspect, near, far, position } = {}) {
+    updateCamera({ fov, aspect, near, far, position, enableControls } = {}) {
         if(!this.camera) {
             throw new Error('Camera does not exists!');
         } else {
-            if (fov !== undefined) {
-                this.camera.fov = fov;
-            } else {
-                throw new Error('FOV is undefined');
-            }
-            
-            if (aspect !== undefined) {
-                this.camera.aspect = aspect;
-            } else {
-                throw new Error('Aspect is undefined');
+            this.setIfFinite(this.camera, 'fov', fov);
+            this.setIfFinite(this.camera, 'aspect', aspect);
+            this.setIfFinite(this.camera, 'near', near);
+            this.setIfFinite(this.camera, 'far', far);
+
+            if(position !== undefined) {
+                if (Number.isFinite(position.x) && Number.isFinite(position.y) && Number.isFinite(position.z)) {
+                    this.camera.position.copy(position);
+                } else {
+                    throw new Error(`Invalid position: x=${position.x}, y=${position.y}, z=${position.z}. Must be finite numbers.`);
+                }
             }
 
-            if (near !== undefined) {
-                this.camera.near = near;
-            } else {
-                throw new Error('Near is undefined');
+            if(enableControls !== undefined) {
+                if (typeof enableControls === "boolean") {
+                    if (enableControls) {
+                        if (!this.cameraController) {
+                            this.cameraController = new CameraController({camera: this.camera, renderer: this.renderer});
+                        }
+                        this.cameraController.bindEvents(); 
+                    } else {
+                        this.cameraController = null;
+                    }
+                } else {
+                    throw new Error('enableControls must be a boolean');
+                }
             }
 
-            if (far !== undefined) {
-                this.camera.far = far;
-            } else {
-                throw new Error('Far is undefined');
-            }
-
-            if (position !== undefined) {
-                this.camera.position.copy(position);
-            } else {
-                throw new Error('Cameras position is undefined');
-            }
             this.camera.updateProjectionMatrix();
+        }
+    }
+
+    setIfFinite(object, key, value) {
+        if(value !== undefined) {
+            if (Number.isFinite(value)) {
+                object[key] = value;
+            } else {
+                throw new Error(`Invalid ${key}: ${key}=${value}. Must be finite numbers.`);
+            }
+        } else {
+            return;
         }
     }
 
