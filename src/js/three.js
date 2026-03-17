@@ -12,16 +12,16 @@ class ThreeJS {
 
     createRenderer({ container, width = window.innerWidth, height = window.innerHeight } = {}) {
         if (!container) {
-            throw new Error("Container DOM element is required");
+            throw new Error('Container DOM element is required.');
         } else {
             if(!this.renderer) {
                 this.renderer = new THREE.WebGLRenderer();
                 container.appendChild(this.renderer.domElement);
-            } else {
-                throw new Error('Renderer already exists!');
-            }
 
-            this.updateRenderer({ width, height });
+                this.updateRenderer({ width, height });
+            } else {
+                throw new Error('Renderer already exists.');
+            }
         }
     }
     
@@ -29,10 +29,10 @@ class ThreeJS {
         if(!this.renderer) {
             throw new Error('Renderer does not exists!');
         } else {
-            if (width !== undefined && height !== undefined){
+            if (Number.isFinite(width) && Number.isFinite(height)){
                 this.renderer.setSize(width, height, true);
             } else {
-                throw new Error('Width or Height are undefined');
+                throw new Error(`Invalid width or height: width=${width}, height=${height}. Must be finite numbers.`);
             }
         }
     }
