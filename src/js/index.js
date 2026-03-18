@@ -19,12 +19,12 @@ if (WebGL.isWebGL2Available()) {
   const threeApp = new ThreeApp({debugGUI, fpsCounter});
   threeApp.createRenderer({container, width: window.innerWidth, height: window.innerHeight});
   threeApp.createCamera({aspect: window.innerWidth / window.innerHeight, enableControls: true});
-  threeApp.createGeometry(particles);
+  threeApp.setGeometry(particles);
   threeApp.start();
   
   window.addEventListener("resize", (event) => {
-    threeApp.updateRenderer({width: window.innerWidth, height: window.innerHeight})
-    threeApp.updateCamera({aspect: window.innerWidth / window.innerHeight})
+    threeApp.updateRenderer({width: window.innerWidth, height: window.innerHeight});
+    threeApp.updateCamera({aspect: window.innerWidth / window.innerHeight});
   })
 
   debugGUI.start({onChange: update})
@@ -32,8 +32,7 @@ if (WebGL.isWebGL2Available()) {
   function update(object) {
     const { type, count, size, color, posBounds, speed } = object.particlesGeometry.input;
     particles = new Particles({ type: type.default, count, size, color, posBounds, speed });
-    threeApp.destroyGeometry()
-    threeApp.createGeometry(particles);
+    threeApp.setGeometry(particles);
   }
 } else {
   const warning = WebGL.getWebGL2ErrorMessage();

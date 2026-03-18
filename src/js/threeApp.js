@@ -102,23 +102,19 @@ class ThreeApp {
         }
     }
 
-    createGeometry(geometry) {
-        if (!this.geometry) {
-            this.geometry = geometry;
-            this.scene.add(this.geometry.mesh);
-        } else {
-            throw new Error('Geometry already exists!');
-        }
-    }
-
-    destroyGeometry() {
+    setGeometry(geometry) {
+        // Remove old geometry if it exists
         if (this.geometry) {
             this.scene.remove(this.geometry.mesh);
             this.geometry.disposeGeometry();
             this.geometry = null;
-        } else {
-            throw new Error('Geometry does not exists!');
         }
+
+        // Assign new geometry
+        this.geometry = geometry;
+
+        // Add geometry to the scene
+        this.scene.add(this.geometry.mesh);
     }
 
     start() {
