@@ -3,11 +3,26 @@ import { CameraController } from './cameraController';
 
 class ThreeApp {
     constructor({ debugGUI, fpsCounter } = {} ) {
-        this.scene = new THREE.Scene();
         this.clock = new THREE.Clock();
-
         this.debugGUI = debugGUI;
         this.fpsCounter = fpsCounter;
+    }
+
+    createScene({ backgroundcolor = 0x000000 } = {}) {
+        if(!this.scene) {
+            this.scene = new THREE.Scene();
+            this.scene.background = new THREE.Color(backgroundcolor);
+        } else {
+            throw new Error('Scene already exists!');
+        }
+    }
+
+    updateScene({ backgroundcolor } = {}) {
+        if(!this.scene) {
+            throw new Error('Scene does not exists!');
+        } else {
+            this.scene.background = new THREE.Color(backgroundcolor);
+        }
     }
 
     createRenderer({ container, width = window.innerWidth, height = window.innerHeight } = {}) {
@@ -37,9 +52,10 @@ class ThreeApp {
         }
     }
     
-    createCamera({ fov = 75,  aspect = window.innerWidth / window.innerHeight, near = 0.1, far = 1000, position = new THREE.Vector3(0, 0, 60), enableControls = false } = {}) {
+    createCamera({ fov = 75,  aspect = window.innerWidth / window.innerHeight, near = 0.1, far = 1000, cameraX = 0, cameraY = 0, cameraZ = 60, enableControls = false } = {}) {
         if(!this.camera) {
             this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+            const position = new THREE.Vector3(cameraX, cameraY, cameraZ)
             this.camera.position.copy(position);
             this.camera.updateProjectionMatrix();
 
@@ -54,16 +70,17 @@ class ThreeApp {
         }
     }
 
-    updateCamera({ fov, aspect, near, far, position, enableControls } = {}) {
+    updateCamera({ fov, aspect, near, far, cameraX = 0, cameraY = 0, cameraZ = 60, enableControls } = {}) {
         if(!this.camera) {
             throw new Error('Camera does not exists!');
         } else {
-            this.setIfFinite(this.camera, 'fov', fov);
-            this.setIfFinite(this.camera, 'aspect', aspect);
-            this.setIfFinite(this.camera, 'near', near);
-            this.setIfFinite(this.camera, 'far', far);
+            this.#setIfFinite(this.camera, 'fov', fov);
+            this.#setIfFinite(this.camera, 'aspect', aspect);
+            this.#setIfFinite(this.camera, 'near', near);
+            this.#setIfFinite(this.camera, 'far', far);
 
-            if(position !== undefined) {
+            if(cameraX !== undefined && cameraY !== undefined && cameraZ !== undefined) {
+                const position = new THREE.Vector3(cameraX, cameraY, cameraZ)
                 if (Number.isFinite(position.x) && Number.isFinite(position.y) && Number.isFinite(position.z)) {
                     this.camera.position.copy(position);
                 } else {
@@ -90,7 +107,7 @@ class ThreeApp {
         }
     }
 
-    setIfFinite(object, key, value) {
+    #setIfFinite(object, key, value) {
         if(value !== undefined) {
             if (Number.isFinite(value)) {
                 object[key] = value;
@@ -118,13 +135,13 @@ class ThreeApp {
 
     setRunning(isRunning) {
         if(isRunning) {
-            this.setLoop(this.animate);
+            this.#setLoop(this.#animate);
         } else {
-            this.setLoop(null);
+            this.#setLoop(null);
         }
     }
 
-    setLoop(callback) {
+    #setLoop(callback) {
         if (!this.renderer) {
             throw new Error("Renderer not created");
         } else {
@@ -132,7 +149,7 @@ class ThreeApp {
         }
     }
 
-    animate = () => {
+    #animate = () => {
         const deltaTime = this.clock.getDelta();
         
         if (this.geometry) {
