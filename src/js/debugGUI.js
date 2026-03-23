@@ -9,30 +9,39 @@ class DebugGUI {
                 display: {
                     fps: 0,
                     calls: 0,
-                    triangles: 0,
-                    JsHeapMB: 0
+                    frame: 0,
+                    lines: 0,
+                    points: 0,
+                    triangles: 0
                 }
             },
 
-            gpuMemory: {
+            gpu: {
                 display: {
                     geometries: 0,
                     textures: 0
                 }
             },
             
-            particlesGeometry: {
+            particles: {
                 input: {
                     type: {
                         default: 'points',
                         options: ['points','cubes']
                     },
                     count: 100,
+                    spread: 50,
+                    speed: 5,
                     size: 0.5,
                     color: 0x00ff00,
-                    posBounds: 50,
-                    speed: 5,
-                    wireframe: false
+                    wireframe: false,
+                    bounceable: true
+                }
+            },
+
+            threeApp: {
+                input: {
+                    running: true
                 }
             },
             
@@ -83,8 +92,9 @@ class DebugGUI {
         const { object } = this;
         let method, params;
 
-        for (let propertyName in object) {            
-            const folder = this.gui.addFolder( propertyName );
+        for (let propertyName in object) {
+            const folderNameCapitalize = propertyName.charAt(0).toLocaleUpperCase() + propertyName.substring(1);           
+            const folder = this.gui.addFolder(folderNameCapitalize);
 
             for (let type in object[propertyName]) {
                 for (let key in object[propertyName][type]) {
