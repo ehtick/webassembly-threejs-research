@@ -102,19 +102,18 @@ class ThreeApp {
         }
     }
 
-    setGeometry(geometry) {
-        // Remove old geometry if it exists
+    removeScene() {
         if (this.geometry) {
-            this.scene.remove(this.geometry.mesh);
-            this.geometry.disposeGeometry();
+            this.scene.remove(this.geometry.getGeometry());
             this.geometry = null;
         }
+    }
 
-        // Assign new geometry
-        this.geometry = geometry;
-
-        // Add geometry to the scene
-        this.scene.add(this.geometry.mesh);
+    addScene(geometry) {
+        if (geometry) {
+            this.geometry = geometry;
+            this.scene.add(this.geometry.getGeometry());
+        }
     }
 
     setRunning(isRunning) {
@@ -149,20 +148,22 @@ class ThreeApp {
         }
 
         if (this.debugGUI) {
-            const display = this.debugGUI.object.performance.display;
-            const rendererInfo = this.renderer.info.render;
+            const performanceDisplay = this.debugGUI.object.performance.display;
+            const gpuDisplay = this.debugGUI.object.gpu.display;
+            const rendererInfo = this.renderer.info;
             
             if(this.fpsCounter) {
-                display.fps = this.fpsCounter.update();
+                performanceDisplay.fps = this.fpsCounter.update();
             }
-            display.calls = rendererInfo.calls;
-            display.triangles = rendererInfo.triangles;
-            display.geometries = rendererInfo.geometries;
-            display.textures = rendererInfo.textures;
-        
-            if (performance.memory) {
-                display.JsHeapMB = performance.memory.usedJSHeapSize / 1048576;
-            }
+            performanceDisplay.calls = rendererInfo.render.calls;
+            performanceDisplay.frame = rendererInfo.render.frame;
+            performanceDisplay.lines = rendererInfo.render.lines;
+            performanceDisplay.points = rendererInfo.render.points;
+            performanceDisplay.triangles = rendererInfo.render.triangles;
+            performanceDisplay.textures = rendererInfo.render.textures;
+            
+            gpuDisplay.geometries = rendererInfo.memory.geometries;
+            gpuDisplay.textures = rendererInfo.memory.textures;
         }
     }
 }
