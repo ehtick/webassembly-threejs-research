@@ -1,107 +1,141 @@
 import * as THREE from 'three';
 
 class Particles {
-    static COMPONENTS_PER_PARTICLE = 3;
+    static #COMPONENTS_PER_VERTEX = 3;
 
-    constructor({ type = 'cubes', count = 100, posBounds = 50, size = 0.5, color = 0x00ff00, speed = 5, wireframe = false } = {} ) {
+    constructor({ type = 'cubes', count = 100, spread = 50, speed = 5, reverseDirection = -1, size = 0.5, color = 0x00ff00, wireframe = false } = {}) {
+        this.#createSetup({type, count, spread, speed, reverseDirection, size, color, wireframe});
+    }
+
+    #createSetup({type, count, spread, speed, reverseDirection, size, color, wireframe}) {
         this.type = type;
         this.count = count;
-        this.posBounds = posBounds;
-        this.size = size;
-        this.color = color;
+        this.boxBounds = spread / 2;       
         this.speed = speed;
-        this.wireframe = wireframe;
-
-        this.particleLength = this.count * Particles.COMPONENTS_PER_PARTICLE;
-        this.positionArray = new Float32Array(this.particleLength);
-        this.velocityArray = new Float32Array(this.particleLength);
-        this.boxBounds = this.posBounds / 2;
+        this.reverseDirection = reverseDirection;
         
-        this.generateParticles();
+        const geometry = this.#createGeometry({type, size, count, spread});
+        const material = this.#createMaterial({type, size, color, wireframe});
+        this.mesh = this.#createMesh({type, count, geometry, material} );
     }
 
-    generateParticles() {
-        const {positionArray, velocityArray, posBounds, speed} = this;
-
-        // Set a random number in each position and velocity
+    #createGeometry({type, size, count, spread} = {}) {
+        const particlesIndexLength = count * Particles.#COMPONENTS_PER_VERTEX;
+        const positionArray = new Float32Array(particlesIndexLength);
+        const velocityArray = new Float32Array(particlesIndexLength);
+        
         for (let i = 0; i < positionArray.length; i++) {
-            // Range: -0.5, +0.5
-            const posRange = (Math.random() - 0.5); 
-            const velRange = (Math.random() - 0.5);
-                
-            positionArray[i] = posRange * posBounds;
-            velocityArray[i] = velRange * speed;
+            const random = Math.random() - 0.5;
+            positionArray[i] = random * spread;
         }
 
-        this.createGeometry();
-    }
+        for (let i = 0; i < velocityArray.length; i++) {
+            const random = Math.random() - 0.5;
+            velocityArray[i] = random;
+        }
 
-    createGeometry() {
-        const {type, positionArray, size, color, count, wireframe} = this;
+        this.positionArray = positionArray;
+        this.velocityArray = velocityArray;
 
         if (type == 'points') {
-            const geometry = new THREE.BufferGeometry();
-            this.posBufferAttr = new THREE.BufferAttribute(positionArray, 3);
-            geometry.setAttribute('position', this.posBufferAttr);
-    
-            const material = new THREE.PointsMaterial({ size, color, sizeAttenuation: true});
-            this.mesh = new THREE.Points(geometry, material);
+            const bufferGeometry = new THREE.BufferGeometry();
+            bufferGeometry.setAttribute('position', new THREE.BufferAttribute(positionArray, Particles.#COMPONENTS_PER_VERTEX));
+            return bufferGeometry;
+        } else if (type == 'cubes') {            
+            return new THREE.BoxGeometry(size, size, size);
+        }  
+    }
 
+    #createMaterial({type, size, color, wireframe} = {}) {
+        if (type == 'points') {
+            return new THREE.PointsMaterial({ size, color, sizeAttenuation: true });
+        } else if (type == 'cubes') {                
+            return new THREE.MeshBasicMaterial({color, wireframe});
+        } 
+    }
+
+    #createMesh({type, count, geometry, material} = {}) {
+        if (type == 'points') {
+            return new THREE.Points(geometry, material);
         } else if (type == 'cubes') {
-            const boxGeometry = new THREE.BoxGeometry(size, size, size);
-            const material = new THREE.MeshBasicMaterial({ color, wireframe});
+            const mesh = new THREE.InstancedMesh(geometry, material, count);
             
-            this.mesh = new THREE.InstancedMesh(boxGeometry, material, count);
-            this.object3D = new THREE.Object3D();
-    
-            for (let i = 0; i < this.mesh.count; i++) {
-                const particleIndex = i * Particles.COMPONENTS_PER_PARTICLE;
+            // Set each cube particle's xyz
+            for(let i = 0; i < count; i++) {
+                const particleIndex = i * Particles.#COMPONENTS_PER_VERTEX;
                 
-                this.object3D.position.fromArray(positionArray, particleIndex);
-                this.object3D.updateMatrix();
-                this.mesh.setMatrixAt(i, this.object3D.matrix);
+                const x = this.positionArray[particleIndex + 0];
+                const y = this.positionArray[particleIndex + 1];
+                const z = this.positionArray[particleIndex + 2];
+
+                const matrix4 = new THREE.Matrix4();
+                matrix4.makeTranslation(x, y, z);
+                mesh.setMatrixAt(i, matrix4);
             }
+
+            return mesh;
         }
     }
 
-    disposeGeometry() {
+    updateSetup({type, count, spread, speed, reverseDirection, size, color, wireframe} = {}) {
+        if(this.mesh) {
+            this.#disposeMesh();
+        }
+
+        this.#createSetup({type, count, spread, speed, reverseDirection, size, color, wireframe})
+    }
+
+    #disposeMesh() {
         this.mesh.geometry.dispose();
         this.mesh.material.dispose();
     }
 
+    getGeometry() {
+        return this.mesh;
+    }
+
     update(deltaTime) {
-        const {type, count, positionArray, velocityArray, boxBounds} = this;
-
-        if (type == 'points') {
-            this.posBufferAttr.needsUpdate = true;
-        } else if (type == 'cubes') {
-            this.mesh.instanceMatrix.needsUpdate = true;
-        }
-
+        const {type, count, speed, boxBounds, reverseDirection, positionArray, velocityArray} = this;
+        
         // Loop through each particle
         for (let i = 0; i < count; i++) {
-            const particleIndex = i * Particles.COMPONENTS_PER_PARTICLE;
+            const particleIndex = i * Particles.#COMPONENTS_PER_VERTEX;
+
+            const particleX = particleIndex + 0;
+            const particleY = particleIndex + 1;
+            const particleZ = particleIndex + 2;
+
+            // Update point particle's xyz
+            const x = positionArray[particleX] += (velocityArray[particleX] * speed) * deltaTime;
+            const y = positionArray[particleY] += (velocityArray[particleY] * speed) * deltaTime;
+            const z = positionArray[particleZ] += (velocityArray[particleZ] * speed) * deltaTime;
+            
+            // Update cube particle's xyz
+            if (type == 'cubes') {
+                const matrix4 = new THREE.Matrix4();
+                matrix4.makeTranslation(x, y, z);
+                this.mesh.setMatrixAt(i, matrix4);
+            }
 
             // Loop through x, y, z from particle
-            for (let j = 0; j < Particles.COMPONENTS_PER_PARTICLE; j++) {
-                
-                // Move particle's xyz
-                positionArray[particleIndex + j] += velocityArray[particleIndex + j] * deltaTime;
+            for (let j = 0; j < Particles.#COMPONENTS_PER_VERTEX; j++) {
+                const index = particleIndex + j;
+                const particlePos = positionArray[index];
 
-                if (type == 'cubes') {
-                    this.object3D.position.fromArray(positionArray, particleIndex);
-                    this.object3D.updateMatrix();
-                    this.mesh.setMatrixAt(i, this.object3D.matrix);
-                }
-                
-                const particlePos = positionArray[particleIndex + j];
-
-                // If particle's xyz hits box border, then reverse direction
-                if (particlePos < -boxBounds || particlePos > boxBounds) {
-                    positionArray[particleIndex + j] = Math.max(-boxBounds, Math.min(boxBounds, particlePos))
-                    velocityArray[particleIndex + j] *= -1;
+                // If particle's x, y or z hits box border, then reverse direction
+                if (particlePos <= -boxBounds || particlePos >= boxBounds) {
+                    const upperClamped = Math.min(boxBounds, particlePos);
+                    const lowerClamped = Math.max(-boxBounds, upperClamped);
+                    positionArray[index] = lowerClamped;
+                    velocityArray[index] *= reverseDirection;
                 }
             }
+        }
+
+        if (type == 'points') {
+            this.mesh.geometry.attributes.position.needsUpdate = true;
+        } else if (type == 'cubes') {
+            this.mesh.instanceMatrix.needsUpdate = true;
         }
     }
 }
