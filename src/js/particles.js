@@ -9,8 +9,7 @@ class Particles {
 
     #createSetup({type, count, spread, speed, size, color, wireframe, isBounceable}) {
         this.type = type;
-        this.count = count;
-        this.boxBounds = spread / 2;       
+        this.count = count;   
         this.speed = speed;
         this.isBounceable = isBounceable;
         
@@ -24,13 +23,14 @@ class Particles {
         const positionArray = new Float32Array(particlesIndexLength);
         const velocityArray = new Float32Array(particlesIndexLength);
         
+        this.boxBounds = spread / 2; // Half the spread. Example: if spread is 10, then box range from -5 to 5
         for (let i = 0; i < positionArray.length; i++) {
-            const random = Math.random() - 0.5;
-            positionArray[i] = random * spread;
+            const random = (Math.random() * 2) - 1; // Range from -1 to 1 
+            positionArray[i] = random * this.boxBounds; // If spread is 10, then all particles will be spread in the range from -5 to 5
         }
 
         for (let i = 0; i < velocityArray.length; i++) {
-            const random = Math.random() - 0.5;
+            const random = (Math.random() * 2) - 1; // Range from -1 to 1 
             velocityArray[i] = random;
         }
 
