@@ -37,7 +37,7 @@ if (WebGL.isWebGL2Available()) {
 
     // Update ThreeApp
     threeApp.updateScene({backgroundcolor});
-    threeApp.updateRenderer({container, width: window.innerWidth, height: window.innerHeight, antialias})
+    threeApp.updateRenderer({antialias})
     threeApp.updateCamera({fov, near, far, cameraX, cameraY, cameraZ, enableControls})
     threeApp.setRunning(isRunning);
   }

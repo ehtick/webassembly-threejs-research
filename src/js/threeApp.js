@@ -30,10 +30,9 @@ class ThreeApp {
             throw new Error('Container DOM element is required.');
         } else {
             if(!this.renderer) {
-                this.renderer = new THREE.WebGLRenderer();
+                this.renderer = new THREE.WebGLRenderer({antialias});
+                this.renderer.setSize(width, height, true);
                 container.appendChild(this.renderer.domElement);
-
-                this.updateRenderer({ width, height, antialias});
             } else {
                 throw new Error('Renderer already exists!');
             }
@@ -44,16 +43,20 @@ class ThreeApp {
         if(!this.renderer) {
             throw new Error('Renderer does not exists!');
         } else {
-            if (Number.isFinite(width) && Number.isFinite(height)){
-                this.renderer.setSize(width, height, true);
-            } else {
-                throw new Error(`Invalid width or height: width=${width}, height=${height}. Must be finite numbers.`);
+            if(width !== undefined && height !== undefined) { 
+                if (Number.isFinite(width) && Number.isFinite(height)){
+                    this.renderer.setSize(width, height, true);
+                } else {
+                    throw new Error(`Invalid width or height: width=${width}, height=${height}. Must be finite numbers.`);
+                }
             }
 
-            if (typeof antialias === "boolean") {
-                this.renderer.antialias = antialias;
-            } else {
-                throw new Error('antialias must be a boolean');
+            if(antialias !== undefined) { 
+                if (typeof antialias === "boolean") {
+                    this.renderer.antialias = antialias;
+                } else {
+                    throw new Error('antialias must be a boolean');
+                }
             }
         }
     }
