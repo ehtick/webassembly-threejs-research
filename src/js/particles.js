@@ -78,7 +78,8 @@ class Particles {
                 const matrix4 = new THREE.Matrix4();
                 matrix4.makeTranslation(position);
                 instancedMesh.setMatrixAt(i, matrix4);
-
+                
+                // Set each hitBox's xyz
                 if(isBounceable) {
                     const box = new THREE.Box3();
                     box.setFromCenterAndSize(position, size)
@@ -114,7 +115,7 @@ class Particles {
         for (let i = 0; i < count; i++) {
             const particleIndex = i * Particles.#COMPONENTS_PER_VERTEX;
 
-            // Get particle's x, y and z
+            // Get particle's xyz
             const particleX = particleIndex + 0;
             const particleY = particleIndex + 1;
             const particleZ = particleIndex + 2;
@@ -134,9 +135,10 @@ class Particles {
                 const size = new THREE.Vector3(width, height, depth);
 
                 const matrix4 = new THREE.Matrix4();
-                matrix4.makeTranslation(x, y, z);
+                matrix4.makeTranslation(position);
                 mesh.setMatrixAt(i, matrix4);
                 
+                // Update hitBox's xyz
                 if(isBounceable) {
                     const box = hitBoxes[i];
                     box.setFromCenterAndSize(position, size);
@@ -183,26 +185,26 @@ class Particles {
                         // Make cube particles bounce away from each other
                         // Reverse the first cube particle's x, y, z velocity
                         const reverseDirection = -1;
-                        velocityArray[firstHitBoxX] *= reverseDirection;
-                        velocityArray[firstHitBoxY] *= reverseDirection;
-                        velocityArray[firstHitBoxZ] *= reverseDirection;
+                        const firstCubeVelX = velocityArray[firstHitBoxX] *= reverseDirection;
+                        const firstCubeVelY = velocityArray[firstHitBoxY] *= reverseDirection;
+                        const firstCubeVelZ = velocityArray[firstHitBoxZ] *= reverseDirection;
 
                         // Reverse the second cube particle's x, y, z velocity
-                        velocityArray[secondHitBoxX] *= reverseDirection;
-                        velocityArray[secondHitBoxY] *= reverseDirection;
-                        velocityArray[secondHitBoxZ] *= reverseDirection;
-                        
+                        const secondCubeVelX = velocityArray[secondHitBoxX] *= reverseDirection;
+                        const secondCubeVelY = velocityArray[secondHitBoxY] *= reverseDirection;
+                        const secondCubeVelZ = velocityArray[secondHitBoxZ] *= reverseDirection;
+
                         // Prevent two cube particles from sticking together (overlapping)
                         // Move the first cube particle along its new velocity (x, y, z)
                         const pushApart = 0.1;
-                        positionArray[firstHitBoxX] += velocityArray[firstHitBoxX] * pushApart;
-                        positionArray[firstHitBoxY] += velocityArray[firstHitBoxY] * pushApart;
-                        positionArray[firstHitBoxZ] += velocityArray[firstHitBoxZ] * pushApart;
+                        positionArray[firstHitBoxX] += firstCubeVelX * pushApart;
+                        positionArray[firstHitBoxY] += firstCubeVelY * pushApart;
+                        positionArray[firstHitBoxZ] += firstCubeVelZ * pushApart;
                         
                         // Move the second cube particle along its new velocity (x, y, z)
-                        positionArray[secondHitBoxX] += velocityArray[secondHitBoxX] * pushApart;
-                        positionArray[secondHitBoxY] += velocityArray[secondHitBoxY] * pushApart;
-                        positionArray[secondHitBoxZ] += velocityArray[secondHitBoxZ] * pushApart;
+                        positionArray[secondHitBoxX] += secondCubeVelX * pushApart;
+                        positionArray[secondHitBoxY] += secondCubeVelY * pushApart;
+                        positionArray[secondHitBoxZ] += secondCubeVelZ * pushApart;
                     }
                 }
             }
