@@ -31,6 +31,12 @@ class CameraController {
         }
     }
 
+    setSpeed(speed) {
+        if(speed) {
+            this.speed = speed;
+        }
+    }
+
     bindEvents() {
         const { controls, move, keyMap } = this;
         

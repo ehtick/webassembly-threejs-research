@@ -61,7 +61,7 @@ class ThreeApp {
         }
     }
     
-    createCamera({ fov = 75,  aspect = window.innerWidth / window.innerHeight, near = 0.1, far = 1000, cameraX = 0, cameraY = 0, cameraZ = 60, enableControls = false } = {}) {
+    createCamera({ fov = 75,  aspect = window.innerWidth / window.innerHeight, near = 0.1, far = 1000, cameraX = 0, cameraY = 0, cameraZ = 60, speed = 10, enableControls = false } = {}) {
         if(!this.camera) {
             this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
             const position = new THREE.Vector3(cameraX, cameraY, cameraZ)
@@ -69,7 +69,7 @@ class ThreeApp {
             this.camera.updateProjectionMatrix();
 
             if (enableControls) {
-                this.cameraController = new CameraController({camera: this.camera, renderer: this.renderer});
+                this.cameraController = new CameraController({camera: this.camera, renderer: this.renderer, speed});
                 this.cameraController.bindEvents();  
             } else {
                 this.cameraController = null;
@@ -79,7 +79,7 @@ class ThreeApp {
         }
     }
 
-    updateCamera({ fov, aspect, near, far, cameraX, cameraY, cameraZ, enableControls } = {}) {
+    updateCamera({ fov, aspect, near, far, cameraX, cameraY, cameraZ, speed, enableControls } = {}) {
         if(!this.camera) {
             throw new Error('Camera does not exists!');
         } else {
@@ -103,6 +103,11 @@ class ThreeApp {
                         if (!this.cameraController) {
                             this.cameraController = new CameraController({camera: this.camera, renderer: this.renderer});
                         }
+
+                        if(speed !== undefined) { 
+                            this.cameraController.setSpeed(speed);
+                        }
+
                         this.cameraController.bindEvents(); 
                     } else {
                         this.cameraController = null;

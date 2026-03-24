@@ -48,7 +48,8 @@ class DebugGUI {
                     far: 1000, 
                     cameraX: 0, 
                     cameraY: 0, 
-                    cameraZ: 60, 
+                    cameraZ: 60,
+                    cameraSpeed: 10, 
                     enableControls: true,
                     antialias: true,
                     running: true
