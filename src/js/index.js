@@ -8,7 +8,7 @@ const container = document.body;
 
 if (WebGL.isWebGL2Available()) {  
   const debugGUI = new DebugGUI({container: container.canvas});
-  const { type, count, spread, speed, pushApart, size, color, wireframe, bounceable: isBounceable } = debugGUI.object.particles.input;
+  const { type, count, spread, speed, pushApart, size, pointcolor: color, boxWireframe: wireframe, boxBounceable: isBounceable } = debugGUI.object.particles.input;
   const { cameraSpeed, enableControls, antialias, running: isRunning } = debugGUI.object.threeApp.input;
   
   let particles = new Particles({ type: type.default, count, spread, speed, pushApart, size, color, wireframe, isBounceable });
@@ -27,10 +27,10 @@ if (WebGL.isWebGL2Available()) {
   })
 
   function update(object) {
-    const { type, count, spread, speed, pushApart, size, color, wireframe, bounceable: isBounceable } = object.particles.input;
+    const { type, count, spread, speed, pushApart, size, pointcolor: color, boxWireframe: wireframe, boxBounceable: isBounceable } = object.particles.input;
     const { backgroundcolor, fov, near, far, cameraX, cameraY, cameraZ, cameraSpeed, enableControls, antialias, running: isRunning } = object.threeApp.input;
 
-    // Update particles
+    // Update Particles
     threeApp.removeScene();
     particles.updateSetup({ type: type.default, count, spread, speed, pushApart, size, color, wireframe, isBounceable });
     threeApp.addScene(particles);
