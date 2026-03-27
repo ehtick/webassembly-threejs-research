@@ -24,15 +24,13 @@ class Particles {
         const positionArray = new Float32Array(particlesIndexLength);
         const velocityArray = new Float32Array(particlesIndexLength);
         
-        this.boxBounds = spread / 2; // Half the spread. Example: if spread is 10, then box range from -5 to 5
+        this.boxBounds = spread / 2; // Half the spread. Example: if spread is 10, then box in range is -5 and 5
         for (let i = 0; i < positionArray.length; i++) {
-            const random = (Math.random() * 2) - 1; // Range from -1 to 1 
-            positionArray[i] = random * this.boxBounds; // If spread is 10, then all particles will be spread in the range from -5 to 5
+            positionArray[i] = this.#randomRange(-this.boxBounds, this.boxBounds); // Random position in range min and max
         }
 
         for (let i = 0; i < velocityArray.length; i++) {
-            const random = (Math.random() * 2) - 1; // Range from -1 to 1 
-            velocityArray[i] = random;
+            velocityArray[i] = this.#randomRange(-1, 1); // Random velocity in range min and max
         }
 
         this.positionArray = positionArray;
@@ -86,6 +84,10 @@ class Particles {
 
             return instancedMesh;
         }
+    }
+
+    #randomRange(min, max) {
+        return Math.random() * (max - min) + min;
     }
 
     updateSetup({type, count, spread, speed, pushApart, size, color, wireframe, isBounceable} = {}) {
