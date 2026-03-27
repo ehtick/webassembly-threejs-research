@@ -71,16 +71,17 @@ class Particles {
                 const z = this.positionArray[particleIndex + 2];
                 const position = new THREE.Vector3(x, y, z);
 
-                const matrix4 = new THREE.Matrix4();
-                matrix4.makeTranslation(position);
-                instancedMesh.setMatrixAt(i, matrix4);
-                
                 // Set each hitBox's xyz
                 if(isBounceable) {
                     const box = new THREE.Box3();
                     box.setFromCenterAndSize(position, new THREE.Vector3(size, size, size));
                     this.hitBoxes.push(box);
                 }
+
+                // Set cube particle's xyz
+                const matrix4 = new THREE.Matrix4();
+                matrix4.makeTranslation(position);
+                instancedMesh.setMatrixAt(i, matrix4);
             }
 
             return instancedMesh;
