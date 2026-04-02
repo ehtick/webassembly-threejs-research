@@ -85,6 +85,7 @@ em++ -v
 ```sh
 scripts/compile_cpp_to_wasm.bat 
 ```
+*Note: The shell and batch files are set to compile C++17 using em++ with flags such as ENVIRONMENT, MODULARIZE and others.*
 
 6. Done! JavaScript will now import the **lib.js** file from the `build/c++` directory.
 
