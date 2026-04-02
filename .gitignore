@@ -1,3 +1,4 @@
-build
-emsdk
-node_modules
+/build
+/emsdk
+/node_modules
+/target
