@@ -4,6 +4,21 @@
 
 *Note: This research prototype is not production-ready.*  
 
+## Tested with
+
+This project was tested with the following tools and versions:
+- **Emscipten** 5.0.4 (em++)
+- **wasm-pack** 0.14.0
+- **wasm-bindgen** 0.2.117
+- **three.js** 0.182.0
+- **vite** 7.3.1
+- **lil-gui** 0.21.0
+- **cargo** 1.89.0
+- **npm** 11.6.2
+- **node.js** 24.13.0
+- **C++17**
+- **Rust** 1.89.0
+
 ## Cloning This Repository  
 
 The repository can be cloned in two ways:
@@ -19,7 +34,7 @@ git clone https://github.com/a23dilel/webassembly-threejs-research.git
 
 ### Emscripten
 
-1. To run and build this project using Emscripten, you need to install the following:  
+1. To run and build this project using Emscripten 5.0.4, you need to install the following:  
 - **Node.js** (18.3.0 or above) 
 - **Python** (3.8 or above) 
 - **Git** (for cloning and managing repositories)
@@ -60,7 +75,7 @@ emsdk/emsdk_env.bat
 em++ -v
 ```
 
-5. Now, compile the C++ code (**lip.cpp**) to WebAssembly, which will generate **lib.js** and **lib.wasm** in the build directory.
+5. Now, compile the C++ code (**lib.cpp**) to WebAssembly, which will generate **lib.js** and **lib.wasm** in the `build/c++` directory.
 - **Linux/MacOS:**
 ```sh
 ./scripts/compile_cpp_to_wasm.sh 
@@ -71,7 +86,32 @@ em++ -v
 scripts/compile_cpp_to_wasm.bat 
 ```
 
-6. Done! JavaScript will now import the **lib.js** file from the build directory.
+6. Done! JavaScript will now import the **lib.js** file from the `build/c++` directory.
+
+### Wasm-pack
+
+1. Navigate to the root directory of the project, which called the **webassembly-threejs-research** folder.
+```sh
+cd webassembly-threejs-research/
+```
+
+2. Install wasm-pack version 0.14.0.
+```sh
+cargo install wasm-pack --version 0.14.0
+```
+
+3. Now, compile the Rust code (**lib.rs**) to WebAssembly, which will generate **lib.js** and **lib_bg.wasm** in the `build/rust` directory.
+- **Linux/MacOS:**
+```sh
+./scripts/compile_rust_to_wasm.sh 
+```
+
+- **Windows:**
+```sh
+scripts/compile_rust_to_wasm.bat 
+```
+
+6. Done! JavaScript will now import the **lib.js** file from the `build/rust` directory.
 
 ### Three.js
 
@@ -86,8 +126,14 @@ npm install
 ```
 
 3. After installing all dependencies, then start the project.
+- **Linux/MacOS:**
 ```sh
 npx vite ./src/
+```
+
+- **Windows:**
+```sh
+npx vite src/
 ```
 
 4. After running the command, a local HTTP address will show in the terminal, which need to click the link or copy and paste it into your web browser's address bar, then press **Enter** to open the project. Here is an example of what a local HTTP address should look like in the terminal.
