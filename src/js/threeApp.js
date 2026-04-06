@@ -100,10 +100,11 @@ class ThreeApp {
 
             if(enableControls !== undefined) {
                 if (typeof enableControls === "boolean") {
+                    if (!this.cameraController) {
+                        this.cameraController = new CameraController({camera: this.camera, renderer: this.renderer});
+                    }
+                    
                     if (enableControls) {
-                        if (!this.cameraController) {
-                            this.cameraController = new CameraController({camera: this.camera, renderer: this.renderer});
-                        }
                         this.cameraController.setSpeed(speed);
                         this.cameraController.bindEvents(true); 
                     } else {
