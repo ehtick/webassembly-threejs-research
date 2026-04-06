@@ -160,60 +160,52 @@ class Particles {
     }
 
     update(deltaTime) {
-        const {type, count, speed, pushApart, size, boxBounds, positionArray, velocityArray, mesh, isBounceable, positionOffset, velocityOffset} = this;
+        const {type, count, speed, pushApart, size, boxBounds, positionArray, mesh, isBounceable} = this;
 
-        // If there is no module (C++ and Rust), then use JS methods
-        if(this.module.myModule) {
-            if(this.module.typeLanguage === "c++") {
-                this.module.myModule.updateParticlePhysics(count, Particles.#COMPONENTS, positionOffset, velocityOffset, speed, boxBounds, deltaTime);
-    
-                if (type == 'cubes') {
-                    for (let particle = 0; particle < count; particle++) { 
-                        this.#updateCubeParticle(particle, positionArray, mesh);
-                    }
-    
-                    if (isBounceable) {
-                        this.module.myModule.updateCubeParticleCollision(positionOffset, velocityOffset, size, count, Particles.#COMPONENTS, pushApart);
-                    }
-    
-                    mesh.instanceMatrix.needsUpdate = true;
-                } else if (type == 'points') {
-                    mesh.geometry.attributes.position.needsUpdate = true;
-                }
-            } else if(this.module.typeLanguage === "rust") {
-                this.module.myModule.update_particle_physics(count, Particles.#COMPONENTS, positionOffset, velocityOffset, speed, boxBounds, deltaTime);
-    
-                if (type == 'cubes') {
-                    for (let particle = 0; particle < count; particle++) { 
-                        this.#updateCubeParticle(particle, positionArray, mesh);
-                    }
-    
-                    if (isBounceable) {
-                        this.module.myModule.update_cube_particle_collision(positionOffset, velocityOffset, size, count, Particles.#COMPONENTS, pushApart);
-                    }
-    
-                    mesh.instanceMatrix.needsUpdate = true;
-                } else if (type == 'points') {
-                    mesh.geometry.attributes.position.needsUpdate = true;
-                }
+        const moduleHandler = this.#moduleHandler(this.module);
+        moduleHandler.updateParticlePhysics(count, Particles.#COMPONENTS, speed, boxBounds, deltaTime);
+
+        if (type == 'cubes') {
+            for (let particle = 0; particle < count; particle++) { 
+                moduleHandler.updateCubeParticle(particle, positionArray, mesh);
             }
-        } else {
-            this.#updateParticlePhysics(count, Particles.#COMPONENTS, positionArray, velocityArray, speed, boxBounds, deltaTime)
-            
-            if (type == 'cubes') {
-                for (let particle = 0; particle < count; particle++) { 
-                    this.#updateCubeParticle(particle, positionArray, mesh);
-                }
-    
-                if (isBounceable) {
-                    this.#updateCubeParticleCollision(positionArray, velocityArray, size, count, Particles.#COMPONENTS, pushApart);
-                }
-    
-                mesh.instanceMatrix.needsUpdate = true;
-            } else if (type == 'points') {
-                mesh.geometry.attributes.position.needsUpdate = true;
+
+            if (isBounceable) {
+                moduleHandler.updateCubeParticleCollision(size, count, Particles.#COMPONENTS, pushApart);
             }
+
+            mesh.instanceMatrix.needsUpdate = true;
+        } else if (type == 'points') {
+            mesh.geometry.attributes.position.needsUpdate = true;
         }
+    }
+
+    #moduleHandler(module) {
+        if(module.typeLanguage === "c++") {
+            const {positionOffset, velocityOffset} = this;
+            return {
+                updateParticlePhysics: (count, maxComponents, speed, boxBounds, deltaTime) => module.myModule.updateParticlePhysics(count, maxComponents, positionOffset, velocityOffset, speed, boxBounds, deltaTime),
+                updateCubeParticle: (particle, positionArray, mesh) => this.#updateCubeParticle(particle, positionArray, mesh), // JS method
+                updateCubeParticleCollision: (size, count, maxComponents, pushApart) => module.myModule.updateCubeParticleCollision(positionOffset, velocityOffset, size, count, maxComponents, pushApart)
+            };
+        }
+
+        if(module.typeLanguage === "rust") {
+            const {positionOffset, velocityOffset} = this;
+            return {
+                updateParticlePhysics: (count, maxComponents, speed, boxBounds, deltaTime) => module.myModule.update_particle_physics(count, maxComponents, positionOffset, velocityOffset, speed, boxBounds, deltaTime),
+                updateCubeParticle: (particle, positionArray, mesh) => this.#updateCubeParticle(particle, positionArray, mesh), // JS method
+                updateCubeParticleCollision: (size, count, maxComponents, pushApart) => module.myModule.update_cube_particle_collision(positionOffset, velocityOffset, size, count, maxComponents, pushApart)
+            };
+        }
+        
+        // Fallback (JS)
+        const {positionArray, velocityArray} = this;
+        return {
+            updateParticlePhysics: (count, maxComponents, speed, boxBounds, deltaTime) => this.#updateParticlePhysics(count, maxComponents, positionArray, velocityArray, speed, boxBounds, deltaTime),
+            updateCubeParticle: (particle, positionArray, mesh) => this.#updateCubeParticle(particle, positionArray, mesh),
+            updateCubeParticleCollision: (size, count, maxComponents, pushApart) => this.#updateCubeParticleCollision(positionArray, velocityArray, size, count, maxComponents, pushApart)
+        };
     }
 
     #updateParticlePhysics(count, maxComponents, positionArray, velocityArray, speed, boxBounds, deltaTime) {
