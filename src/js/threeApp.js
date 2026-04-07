@@ -183,7 +183,7 @@ class ThreeApp {
             const rendererInfo = this.renderer.info;
             
             if(this.fpsCounter) {
-                performanceDisplay.fps = this.fpsCounter.update();
+                performanceDisplay.fps = this.fpsCounter.measureFPS();
             }
             performanceDisplay.calls = rendererInfo.render.calls;
             performanceDisplay.frame = rendererInfo.render.frame;
