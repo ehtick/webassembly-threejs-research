@@ -12,15 +12,20 @@ if (WebGL.isWebGL2Available()) {
   const debugGUI = new DebugGUI({container: container.canvas});
   const { typeLanguage, type, count, spread, speed, pushApart, size, pointcolor: color, cubeWireframe: wireframe, cubeBounceable: isBounceable } = debugGUI.object.particles.input;
   const { cameraSpeed, enableControls, antialias, running: isRunning } = debugGUI.object.threeApp.input;
-  const { fps: isFPS } = debugGUI.object.measure.input;
+  const { fps: isFPS, hours } = debugGUI.object.measure.input;
   const module = await getModule(typeLanguage);
   
   let particles = new Particles({ module, type: type.default, count, spread, speed, pushApart, size, color, wireframe, isBounceable });
   const fpsCounter = new FPSCounter();
   
   if(isFPS) {
-    fpsCounter.showPrompt();
+    fpsCounter.setHours(hours);
     fpsCounter.start();
+
+    // Check time left every second
+    setInterval(() => {
+      debugGUI.object.measure.display.timeLeft = fpsCounter.getTimeLeft();
+    }, 1000);
   } else {
     fpsCounter.start();
   }
@@ -57,13 +62,18 @@ if (WebGL.isWebGL2Available()) {
   async function update(object) {
     const { typeLanguage, type, count, spread, speed, pushApart, size, pointcolor: color, cubeWireframe: wireframe, cubeBounceable: isBounceable } = object.particles.input;
     const { backgroundcolor, fov, near, far, cameraX, cameraY, cameraZ, cameraSpeed, enableControls, antialias, running: isRunning } = object.threeApp.input;
-    const { fps: isFPS } = debugGUI.object.measure.input;
+    const { fps: isFPS, hours } = debugGUI.object.measure.input;
     const module = await getModule(typeLanguage);
 
     fpsCounter.clear();
     if(isFPS) {
-      fpsCounter.showPrompt();
+      fpsCounter.setHours(hours);
       fpsCounter.start();
+      
+      // Check time left every second
+      setInterval(() => {
+        debugGUI.object.measure.display.timeLeft = fpsCounter.getTimeLeft();
+      }, 1000);
     } else {
       fpsCounter.start();
     }
