@@ -27,7 +27,7 @@ class FPSCounter {
         
         if (deltaTime >= this.responsiveFps) {
             this.fps = Math.round((this.frames * this.responsiveFps) / deltaTime);
-
+            
             this.fpsResults.push({
                 result: this.fps
             })
@@ -39,7 +39,7 @@ class FPSCounter {
 
         if(this.isPromptable) {
             if (!this.isStopped && (nowTime - this.initStartTime >= this.durationMs)) {
-                this.stop();
+                this.#stop();
                 return;
             }
         }
@@ -53,12 +53,12 @@ class FPSCounter {
         this.isStopped = false;
     }
 
-    stop() {
+    #stop() {
         this.isStopped = true;
-        this.exportCSV();
+        this.#exportCSV();
     }
 
-    exportCSV() {
+    #exportCSV() {
         let csv = "result\n";
 
         // Add rows
