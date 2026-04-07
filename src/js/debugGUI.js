@@ -35,8 +35,8 @@ class DebugGUI {
                     },
                     count: 100,
                     spread: 50,
-                    speed: 5,
-                    pushApart: 0.1,
+                    speed: 1,
+                    cubePushApart: 0.1,
                     size: 0.5,
                     pointcolor: 0x00ff00,
                     cubeWireframe: false,
@@ -66,7 +66,7 @@ class DebugGUI {
                     hours: 1
                 },
                 display: {
-                    timeLeft: 0
+                    timeLeftDisplay: 0
                 }
             },
             
