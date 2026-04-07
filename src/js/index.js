@@ -12,10 +12,19 @@ if (WebGL.isWebGL2Available()) {
   const debugGUI = new DebugGUI({container: container.canvas});
   const { typeLanguage, type, count, spread, speed, pushApart, size, pointcolor: color, cubeWireframe: wireframe, cubeBounceable: isBounceable } = debugGUI.object.particles.input;
   const { cameraSpeed, enableControls, antialias, running: isRunning } = debugGUI.object.threeApp.input;
+  const { fps: isFPS } = debugGUI.object.measure.input;
   const module = await getModule(typeLanguage);
   
   let particles = new Particles({ module, type: type.default, count, spread, speed, pushApart, size, color, wireframe, isBounceable });
   const fpsCounter = new FPSCounter();
+  
+  if(isFPS) {
+    fpsCounter.showPrompt();
+    fpsCounter.start();
+  } else {
+    fpsCounter.start();
+  }
+
   const threeApp = new ThreeApp({debugGUI, fpsCounter});
 
   threeApp.createScene();
@@ -48,7 +57,16 @@ if (WebGL.isWebGL2Available()) {
   async function update(object) {
     const { typeLanguage, type, count, spread, speed, pushApart, size, pointcolor: color, cubeWireframe: wireframe, cubeBounceable: isBounceable } = object.particles.input;
     const { backgroundcolor, fov, near, far, cameraX, cameraY, cameraZ, cameraSpeed, enableControls, antialias, running: isRunning } = object.threeApp.input;
+    const { fps: isFPS } = debugGUI.object.measure.input;
     const module = await getModule(typeLanguage);
+
+    fpsCounter.clear();
+    if(isFPS) {
+      fpsCounter.showPrompt();
+      fpsCounter.start();
+    } else {
+      fpsCounter.start();
+    }
 
     // Update Particles
     threeApp.removeScene();
