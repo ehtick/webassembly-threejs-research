@@ -49,12 +49,12 @@ cd webassembly-threejs-research
 
 2. Install the Emscripten SDK (emsdk) version 5.0.4 and activate it for the current user.
 - **Linux/MacOS:**
-```sh
+```bash
 ./scripts/setup_emsdk.sh 
 ```
 
 - **Windows:**
-```sh
+```cmd
 call scripts\setup_emsdk.bat 
 ```
 *Note: You need to use the Command Prompt (CMD) to run the batch scripts. PowerShell is not supported.*
@@ -63,12 +63,12 @@ call scripts\setup_emsdk.bat
 
 3. Next is activate the Emscripten environment variables in the current terminal.
 - **Linux/MacOS:**
-```sh
+```bash
 source ./emsdk/emsdk_env.sh 
 ```
 
 - **Windows:**
-```sh
+```cmd
 call emsdk\emsdk_env.bat
 ```
 *Note: You need to activate the Emscripten environment on Linux/macOS or Windows every time you open a new terminal. Otherwise, Emscripten commands (`em++`) will not work.*
@@ -81,12 +81,12 @@ em++ -v
 
 5. Now, compile the C++ code (**lib.cpp**) to WebAssembly, which will generate **lib.js** and **lib.wasm** in the `build/c++` directory.
 - **Linux/MacOS:**
-```sh
+```bash
 ./scripts/compile_cpp_to_wasm.sh 
 ```
 
 - **Windows:**
-```sh
+```cmd
 call scripts\compile_cpp_to_wasm.bat 
 ```
 *Note: The shell and batch files compile `C++17` code using `em++` with flags such as `ENVIRONMENT`, `MODULARIZE`, `EXPORT_ES6`, and exporting functions like `_malloc`,`_free` and more.*
@@ -113,12 +113,12 @@ cargo install wasm-pack --version 0.14.0
 
 3. Now, compile the Rust code (**lib.rs**) to WebAssembly, which will generate **lib.js** and **lib_bg.wasm** in the `build/rust` directory.
 - **Linux/MacOS:**
-```sh
+```bash
 ./scripts/compile_rust_to_wasm.sh 
 ```
 
 - **Windows:**
-```sh
+```cmd
 call scripts\compile_rust_to_wasm.bat 
 ```
 *Note: The shell and batch files use the `wasm-pack` command to compile Rust code to WebAssembly.*
@@ -145,12 +145,12 @@ npm install
 
 3. After installing all dependencies, then start the project.
 - **Linux/MacOS:**
-```sh
+```bash
 npx vite ./src/
 ```
 
 - **Windows:**
-```sh
+```cmd
 npx vite src\
 ```
 
