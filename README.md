@@ -2,6 +2,7 @@
 
 **This project is an experimental research project focused on 3D Particle System using WebAssembly and Three.js.**  
 
+![Particle System](./images/particle_system.png)
 *Note: This research prototype is not production-ready.*  
 
 ## Tested with
@@ -17,7 +18,7 @@ This project was tested with the following tools and versions:
 - **npm** 11.6.2
 - **node.js** 24.13.0
 - **C++17**
-- **Rust** 1.89.0
+- **Rust** 1.89.0 (Edition 2024)
 
 ## Cloning This Repository  
 
@@ -60,7 +61,7 @@ call scripts\setup_emsdk.bat
 
 *Note: The shell and batch files are set to install Emscripten SDK version 5.0.4.*
 
-3. Next is activate the PATH and other environment variables in the current terminal.
+3. Next is activate the Emscripten environment variables in the current terminal.
 - **Linux/MacOS:**
 ```sh
 source ./emsdk/emsdk_env.sh 
@@ -70,12 +71,13 @@ source ./emsdk/emsdk_env.sh
 ```sh
 call emsdk\emsdk_env.bat
 ```
-*Note: You need to activate the PATH on Linux/macOS or Windows every time you open a new terminal to use Emscripten commands. Otherwise, the commands will not work.*
+*Note: You need to activate the Emscripten environment on Linux/macOS or Windows every time you open a new terminal. Otherwise, Emscripten commands (`em++`) will not work.*
 
 4. Now check that the Emscripten command is working.
 ```sh
 em++ -v
 ```
+*Note: Emscripten uses `wasm32-unknown-emscripten` target by default.*
 
 5. Now, compile the C++ code (**lib.cpp**) to WebAssembly, which will generate **lib.js** and **lib.wasm** in the `build/c++` directory.
 - **Linux/MacOS:**
@@ -87,7 +89,11 @@ em++ -v
 ```sh
 call scripts\compile_cpp_to_wasm.bat 
 ```
-*Note: The shell and batch files are set to compile C++17 using em++ with flags such as ENVIRONMENT, MODULARIZE and others.*
+*Note: The shell and batch files compile `C++17` code using `em++` with flags such as `ENVIRONMENT`, `MODULARIZE`, `EXPORT_ES6`, and exporting functions like `_malloc`,`_free` and more.*
+
+*Note: The default WebAssembly memory is ~16 MB, which limits how many particles can be used. Each particle stores 3 values (x, y, z) using Float32Array. For example, 1000 particles -> 3000 values and 3000 × 4 bytes (float) = 12,000 bytes (~0.012 MB). This will be fit in the default memory. You can increase memory in the shell or batch scripts using: `-s INITIAL_MEMORY=32MB` or `-s INITIAL_MEMORY=64MB`. You can also enable dynamic memory with: `-s ALLOW_MEMORY_GROWTH`, which does memory to grow as needed, but it may reduce performance. It is recommended to use the default (~16 MB).*
+
+*Note: The build uses `-Os` to reduce code size while doing optimization, and `-flto` for additional optimizations. To find more details, see: [Optimizing Code](https://emscripten.org/docs/optimizing/Optimizing-Code.html#optimizing-code).*
 
 6. Done! JavaScript will now import the **lib.js** file from the `build/c++` directory. Next step is wasm-pack!
 
@@ -102,6 +108,8 @@ cd webassembly-threejs-research
 ```sh
 cargo install wasm-pack --version 0.14.0
 ```
+*Note: wasm-pack uses `wasm32-unknown-unknown` target by default.*
+
 
 3. Now, compile the Rust code (**lib.rs**) to WebAssembly, which will generate **lib.js** and **lib_bg.wasm** in the `build/rust` directory.
 - **Linux/MacOS:**
@@ -113,7 +121,12 @@ cargo install wasm-pack --version 0.14.0
 ```sh
 call scripts\compile_rust_to_wasm.bat 
 ```
-*Note: The shell and batch files use the wasm-pack command to compile Rust code to WebAssembly.*
+*Note: The shell and batch files use the `wasm-pack` command to compile Rust code to WebAssembly.*
+
+*Note: wasm-pack/bindgen uses dynamic memory by default, which means memory can grow automatically as needed. For example, 1000 particles ->  ~1.125 MB, 10 000 particles -> ~1.375 MB, but once memory grows, it cannot shrink back, unless the program is restarted.*
+
+*Note: The shell and batch files use the `--release` flag, which uses the `[profile.release]` settings in `Cargo.toml` file, where `opt-level = "s"` optimizes for binary size
+and `lto = true` can produce better optimized code. To find more details, see: [Profiles](https://doc.rust-lang.org/cargo/reference/profiles.html).*
 
 6. Done! JavaScript will now import the **lib.js** file from the `build/rust` directory. Now it's only left is to run three.js!
 
@@ -128,6 +141,7 @@ cd webassembly-threejs-research
 ```sh
 npm install
 ```
+*Note: When you run `npm install`, it reads the `package.json` and installs all listed dependencies.*
 
 3. After installing all dependencies, then start the project.
 - **Linux/MacOS:**
