@@ -42,8 +42,8 @@ class Particles {
                 wasmMemoryBuffer = this.module.myModule.HEAPF32.buffer; // ~16 MB by default (depends on Emscripten flags like INITIAL_MEMORY or ALLOW_MEMORY_GROWTH)
             } else if(this.module.typeLanguage === "rust") {
                 // Allocate the memory bytes
-                this.positionOffset = this.module.myModule.alloc(this.bytes);
-                this.velocityOffset = this.module.myModule.alloc(this.bytes);
+                this.positionOffset = this.module.myModule.malloc(this.bytes);
+                this.velocityOffset = this.module.myModule.malloc(this.bytes);
                 
                 // Get memory buffer from wasm
                 // Note: Memory grows automatically as needed (e.g., ~1.125MB for ~1000 particles, ~1.375MB for ~10000 particles). Memory can grow but cannot shrink.

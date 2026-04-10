@@ -1,18 +1,21 @@
+use std::alloc::{alloc, dealloc, Layout};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 #[wasm_bindgen]
-pub fn alloc(size: usize) -> *mut u8 {
-    let mut buffer: Vec<u8> = Vec::with_capacity(size);
-    let pointer: *mut u8 = buffer.as_mut_ptr();
-    std::mem::forget(buffer);
-    return pointer;
+pub fn malloc(size: usize) -> usize {
+    unsafe {
+        let alignment: usize = std::mem::align_of::<f32>();
+        let layout: Layout = Layout::from_size_align_unchecked(size, alignment);
+        return alloc(layout) as usize;
+    }
 }
 
 #[wasm_bindgen]
-pub fn free(pointer: *mut u8, size: usize) {
+pub fn free(pointer: usize, size: usize) {
     unsafe {
-        let data: Vec<u8> = Vec::from_raw_parts(pointer, 0, size);
-        std::mem::drop(data);
+        let alignment: usize = std::mem::align_of::<f32>();
+        let layout: Layout = Layout::from_size_align_unchecked(size, alignment);
+        dealloc(pointer as *mut u8, layout);
     }
 }
 
