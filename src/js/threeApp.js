@@ -2,10 +2,10 @@ import * as THREE from 'three';
 import { CameraController } from './cameraController';
 
 class ThreeApp {
-    constructor({ debugGUI, fpsCounter } = {} ) {
+    constructor({ debugGUI, profiler } = {} ) {
         this.clock = new THREE.Clock();
         this.debugGUI = debugGUI;
-        this.fpsCounter = fpsCounter;
+        this.profiler = profiler;
     }
 
     createScene({ backgroundcolor = 0x000000 } = {}) {
@@ -166,7 +166,17 @@ class ThreeApp {
         const deltaTime = this.clock.getDelta();
         
         if (this.geometry) {
-            this.geometry.update(deltaTime);
+            if(this.profiler) {
+                this.profiler.startFrame();
+
+                this.profiler.startExec("geometry");
+                this.geometry.update(deltaTime);
+                this.profiler.endExec();
+
+                this.profiler.endFrame();
+            } else {
+                this.geometry.update(deltaTime);
+            }
         }
 
         if (this.cameraController) {
@@ -182,8 +192,8 @@ class ThreeApp {
             const gpuDisplay = this.debugGUI.object.gpu.display;
             const rendererInfo = this.renderer.info;
             
-            if(this.fpsCounter) {
-                performanceDisplay.fps = this.fpsCounter.measureFPS();
+            if(this.profiler) {
+                performanceDisplay.fps = this.profiler.measureFPS();
             }
             performanceDisplay.calls = rendererInfo.render.calls;
             performanceDisplay.frame = rendererInfo.render.frame;

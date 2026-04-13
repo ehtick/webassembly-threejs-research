@@ -62,7 +62,7 @@ class DebugGUI {
 
             measure: {
                 input: {
-                    fps: false,
+                    profiler: false,
                     hours: 1
                 },
                 display: {

@@ -1,7 +1,7 @@
 import WebGL from 'three/addons/capabilities/WebGL.js';
 import { ThreeApp } from './threeApp';
 import { DebugGUI } from './debugGUI';
-import { FPSCounter } from './fpsCounter';
+import { Profiler } from './profiler';
 import { Particles } from './particles';
 import createModule from "../../build/c++/lib.js";
 import init from "../../build/rust/lib.js";
@@ -12,25 +12,25 @@ if (WebGL.isWebGL2Available()) {
   const debugGUI = new DebugGUI({container: container.canvas});
   const { typeLanguage, type, count, spread, speed, cubePushApart: pushApart, size, pointcolor: color, cubeWireframe: wireframe, cubeBounceable: isBounceable } = debugGUI.object.particles.input;
   const { cameraSpeed, enableControls, antialias, running: isRunning } = debugGUI.object.threeApp.input;
-  const { fps: isFPS, hours } = debugGUI.object.measure.input;
+  const { profiler: isProfiler, hours } = debugGUI.object.measure.input;
   const module = await getModule(typeLanguage);
   
   let particles = new Particles({ module, type: type.default, count, spread, speed, pushApart, size, color, wireframe, isBounceable });
-  const fpsCounter = new FPSCounter();
+  const profiler = new Profiler();
   
-  if(isFPS) {
-    fpsCounter.setHours(hours);
-    fpsCounter.start();
+  if(isProfiler) {
+    profiler.setHours(hours);
+    profiler.start();
 
     // Check time left every second
     setInterval(() => {
-      debugGUI.object.measure.display.timeLeftDisplay = fpsCounter.getTimeLeft();
+      debugGUI.object.measure.display.timeLeftDisplay = profiler.getTimeLeft();
     }, 1000);
   } else {
-    fpsCounter.start();
+    profiler.start();
   }
 
-  const threeApp = new ThreeApp({debugGUI, fpsCounter});
+  const threeApp = new ThreeApp({debugGUI, profiler});
 
   threeApp.createScene();
   threeApp.createRenderer({container, width: window.innerWidth, height: window.innerHeight, antialias});
@@ -62,20 +62,20 @@ if (WebGL.isWebGL2Available()) {
   async function update(object) {
     const { typeLanguage, type, count, spread, speed, cubePushApart: pushApart, size, pointcolor: color, cubeWireframe: wireframe, cubeBounceable: isBounceable } = object.particles.input;
     const { backgroundcolor, fov, near, far, cameraX, cameraY, cameraZ, cameraSpeed, enableControls, antialias, running: isRunning } = object.threeApp.input;
-    const { fps: isFPS, hours } = debugGUI.object.measure.input;
+    const {  profiler: isProfiler, hours } = debugGUI.object.measure.input;
     const module = await getModule(typeLanguage);
 
-    fpsCounter.clear();
-    if(isFPS) {
-      fpsCounter.setHours(hours);
-      fpsCounter.start();
+    profiler.clear();
+    if(isProfiler) {
+      profiler.setHours(hours);
+      profiler.start();
       
       // Check time left every second
       setInterval(() => {
-        debugGUI.object.measure.display.timeLeftDisplay = fpsCounter.getTimeLeft();
+        debugGUI.object.measure.display.timeLeftDisplay = profiler.getTimeLeft();
       }, 1000);
     } else {
-      fpsCounter.start();
+      profiler.start();
     }
 
     // Update Particles
