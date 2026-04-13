@@ -29,7 +29,7 @@ class Profiler {
         const deltaTime = nowTime - this.lastTime;
         
         if (deltaTime >= this.responsiveFps) {
-            this.fps = Math.round((this.frames * this.responsiveFps) / deltaTime);
+            this.fps = Math.round((this.frames * 1000) / deltaTime);
             
             this.fpsRows.push({
                 fps: this.fps
