@@ -163,6 +163,7 @@ class ThreeApp {
     }
 
     #animate = () => {
+        const fps = this.profiler.measureFPS();
         const deltaTime = this.clock.getDelta();
         
         if (this.geometry) {
@@ -193,7 +194,7 @@ class ThreeApp {
             const rendererInfo = this.renderer.info;
             
             if(this.profiler) {
-                performanceDisplay.fps = this.profiler.measureFPS();
+                performanceDisplay.fps = fps;
             }
             performanceDisplay.calls = rendererInfo.render.calls;
             performanceDisplay.frame = rendererInfo.render.frame;
