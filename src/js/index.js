@@ -62,7 +62,7 @@ if (WebGL.isWebGL2Available()) {
   async function update(object) {
     const { typeLanguage, type, count, spread, speed, cubePushApart: pushApart, size, pointcolor: color, cubeWireframe: wireframe, cubeBounceable: isBounceable } = object.particles.input;
     const { backgroundcolor, fov, near, far, cameraX, cameraY, cameraZ, cameraSpeed, enableControls, antialias, running: isRunning } = object.threeApp.input;
-    const {  profiler: isProfiler, hours } = debugGUI.object.measure.input;
+    const {  profiler: isProfiler, hours } = object.measure.input;
     const module = await getModule(typeLanguage);
 
     profiler.clear();
@@ -72,7 +72,7 @@ if (WebGL.isWebGL2Available()) {
       
       // Check time left every second
       setInterval(() => {
-        debugGUI.object.measure.display.timeLeftDisplay = profiler.getTimeLeft();
+        object.measure.display.timeLeftDisplay = profiler.getTimeLeft();
       }, 1000);
     } else {
       profiler.start();
