@@ -18,7 +18,7 @@ class Particles {
         
         const geometry = this.#createGeometry({type, size, count, spread});
         const material = this.#createMaterial({type, size, color, wireframe});
-        this.mesh = this.#createMesh({type, size, count, geometry, material, isBounceable} );
+        this.mesh = this.#createMesh({type, count, geometry, material} );
     }
 
     #createGeometry({type, size, count, spread} = {}) {
@@ -88,7 +88,7 @@ class Particles {
         } 
     }
 
-    #createMesh({type, size, count, geometry, material, isBounceable} = {}) {
+    #createMesh({type, count, geometry, material} = {}) {
         if (type == 'points') {
             return new THREE.Points(geometry, material);
         } else if (type == 'cubes') {
